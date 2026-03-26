@@ -46,7 +46,7 @@ Dit project heeft als doel om aan de hand van een opgegeven dienstnummer (format
 - **PDF Tekst Extractie**: `pdf-parse` bibliotheek
 - **PDF naar Afbeelding Conversie**: `pdf2pic` of `pdf-poppler` (gebaseerd op Poppler)
 - **Afbeelding Optimalisatie**: `sharp` bibliotheek (optioneel voor kwaliteit aanpassing)
-- **Caching**: SQLite database via `better-sqlite3` bibliotheek
+- **Caching**: SQLite database met Prisma ORM
 - **CLI Framework**: `commander.js` voor argument parsing en help tekst
 - **Configuratie**: Vereist extern configuratie bestand (JSON, YAML of TOML) - geen hardcoded defaults of environment variables als fallback
 - **Testing**: `jest` voor unit en integratie tests

@@ -46,22 +46,30 @@ Dit project heeft als doel om aan de hand van een opgegeven dienstnummer (format
 - **PDF Tekst Extractie**: `pdf-parse` bibliotheek
 - **PDF naar Afbeelding Conversie**: `pdf2pic` of `pdf-poppler` (gebaseerd op Poppler)
 - **Afbeelding Optimalisatie**: `sharp` bibliotheek (optioneel voor kwaliteit aanpassing)
-- **Caching**: `node-cache` of vergelijkbare in-memory cache
+- **Caching**: SQLite database via `better-sqlite3` bibliotheek
 - **CLI Framework**: `commander.js` voor argument parsing en help tekst
+- **Configuratie**: Vereist extern configuratie bestand (JSON, YAML of TOML) - geen hardcoded defaults of environment variables als fallback
 - **Testing**: `jest` voor unit en integratie tests
 
 ### Architectuur
-Het systeem bestaat uit de volgende modules:
+Het systeem bestaat uit de volgende lagen:
 
-1. **CLI Interface**: Verzorgt command-line interface en argument parsing
-2. **Input Validator**: Valideert dienstnummer formaat
-3. **Service Number Finder**: Zoekt dienstnummer in PDF bestanden
-4. **Page Extractor**: Extrahert specifieke pagina's uit PDF
-5. **Image Generator**: Converteert PDF pagina's naar JPG
-6. **File Manager**: Beheert bestandssysteem operaties (lezen, schrijven, paden)
-7. **Cache Manager**: Beheert caching van zoekresultaten
+1. **Configuratie Laad Laad**: Laadt configuratie uit externe bestanden (config/default.json, config/custom.{json,yaml,toml}, environment variables)
+2. **CLI Interface**: Verzorgt command-line interface en argument parsing (alleen voor standalone gebruik)
+3. **Core Bibliotheek**: Herbruikbare set modules die de functionaliteit biedt:
+   - **Input Validator**: Valideert dienstnummer formaat
+   - **Service Number Finder**: Zoekt dienstnummer in PDF bestanden
+   - **Page Extractor**: Extrahert specifieke pagina's uit PDF
+   - **Image Generator**: Converteert PDF pagina's naar JPG
+   - **File Manager**: Beheert bestandssysteem operaties (lezen, schrijven, paden)
+   - **Cache Manager**: Beheert caching van zoekresultaten
+4. **Utils**: Helper functies die gebruikt worden door verschillende modules
+
+De Core Bibliotheek is zo ontworpen dat deze gemakkelijk kan worden opgenomen in andere projecten. Andere projecten kunnen de Core Bibliotheek importeren en de functies aanroepen met hun eigen configuratie.
 
 ### Component Interfaces
+
+Alle modules in de Core Bibliotheek accepteren configuratie waar nodig via parameters, waardoor ze onafhankelijk werken van harde-coded waarden.
 
 #### InputValidator
 ```javascript
@@ -109,10 +117,35 @@ function get(key: string): any
 function set(key: string, value: any, ttl: number): void
 ```
 
+### Voorbeeld Gebruik als Bibliotheek
+Andere projecten kunnen de core functionaliteit als volgt gebruiken:
+
+```javascript
+// Importeren van de benodigde modules
+const {
+  validateServiceNumber,
+  findServiceNumberInPdfs,
+  extractPagesAsImages,
+  convertImagesToJpg,
+  saveJpgFiles
+} = require('./dienst2jpg-core');
+
+// Of alternatief, een hoofd-functie die de hele workflow afhandelt
+const { extractAndSaveJpgByServiceNumber } = require('./dienst2jpg-core');
+
+// Met expliciete configuratie
+const result = await extractAndSaveJpgByServiceNumber('V1234', {
+  pdfDirectory: './diensten',
+  outputDirectory: './output',
+  cacheEnabled: true,
+  cacheTtl: 3600
+});
+```
+
 ### Foutafhandeling
 Het systeem hanteert de volgende foutscenario's met specifieke fouttypes:
 
-1. **InvalidServiceNumberError**: Dienstnummer komt niet overeen met verwacht patroon
+1. **InvalidServiceNumberError**: Dienstnummer komt niet overeen met verwacht patroon. Deze fout moet de optie bieden om een eventueel nieuw format te integreren zonder bestaande functionaliteit te breken.
 2. **ServiceNumberNotFoundError**: Dienstnummer niet gevonden in enige PDF
 3. **PdfNotFoundError**: Gespecificeerd PDF bestand niet gevonden
 4. **PdfParseError**: Fout bij het parsen van PDF tekst

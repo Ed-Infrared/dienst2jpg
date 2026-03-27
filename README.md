@@ -1,3 +1,10 @@
+# Disclaimer
+
+This project is generated with:\
+Claude-Code 2.1.85\
+model nvidia/nemotron-3-super-120b-a12b:free
+
+
 # PDF Dienstnummer Extractor
 
 A Node.js application that extracts PDF pages based on dienstnummer (service number) and saves them as JPG files. The application features external configuration, SQLite caching, and a modular architecture for reusability.

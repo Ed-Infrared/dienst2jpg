@@ -1,0 +1,9 @@
+{
+  "pdfDirectory": "./diensten",
+  "outputDirectory": "./output",
+  "cacheEnabled": true,
+  "cacheTtl": 3600,
+  "sharp": {
+    "quality": 80
+  }
+}

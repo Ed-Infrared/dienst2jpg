@@ -1,5 +1,8 @@
-const config = require('config');
 const path = require('path');
+// Set the config directory to be src/config relative to the project root
+const configDir = path.join(__dirname, '..', 'config');
+process.env.NODE_CONFIG_DIR = configDir;
+const config = require('config');
 
 function loadConfig() {
   // config module automatically loads from:
